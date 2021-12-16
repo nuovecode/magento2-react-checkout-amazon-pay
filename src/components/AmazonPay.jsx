@@ -3,6 +3,9 @@ import React, { useEffect } from 'react';
 import _get from 'lodash.get';
 import RadioInput from '../../../../components/common/Form/RadioInput';
 import useAmazonPay from '../hooks/useAmazonPay';
+import useAmazonPayCheckoutFormContext from '../hooks/useAmazonPayCheckoutFormContext';
+import usePaymentMethodCartContext from "../../../../components/paymentMethod/hooks/usePaymentMethodCartContext";
+import usePaymentMethodAppContext from "../../../../components/paymentMethod/hooks/usePaymentMethodAppContext";
 
 function AmazonPay({ method, selected, actions }) {
   const methodCode = _get(method, 'code');
@@ -10,18 +13,48 @@ function AmazonPay({ method, selected, actions }) {
     getCheckoutSessionConfig,
     placeAmazonPayOrder,
     processPaymentEnable,
+    setAddresses,
   } = useAmazonPay(methodCode);
+  const {
+    setPaymentMethod,
+    selectedPaymentMethod,
+  } = usePaymentMethodCartContext();
+  const { setPageLoader } = usePaymentMethodAppContext();
   const isSelected = methodCode === selected.code;
+  const { registerPaymentAction } = useAmazonPayCheckoutFormContext();
 
   useEffect(() => {
-    if (isSelected) getCheckoutSessionConfig();
-  }, [isSelected, getCheckoutSessionConfig]);
+   if (isSelected) {
+     (async () => {
+       setPageLoader(true);
+       await getCheckoutSessionConfig();
+       if(selectedPaymentMethod.code !== methodCode) {
+           await setPaymentMethod(methodCode);
+       }
+       setPageLoader(false);
+     })();
+    }
+  }, [
+   isSelected,
+   setPaymentMethod,
+   methodCode,
+   selectedPaymentMethod,
+   setPageLoader,
+   getCheckoutSessionConfig
+  ]);
 
   useEffect(() => {
     if (processPaymentEnable) {
-      placeAmazonPayOrder();
+      setAddresses();
+      registerPaymentAction(methodCode, placeAmazonPayOrder);
     }
-  }, [placeAmazonPayOrder, processPaymentEnable]);
+  }, [
+    setAddresses,
+    processPaymentEnable,
+    methodCode,
+    registerPaymentAction,
+    placeAmazonPayOrder,
+  ]);
 
   if (isSelected) {
     return (
@@ -54,7 +87,7 @@ function AmazonPay({ method, selected, actions }) {
 }
 
 const methodShape = shape({
-  title: string.isRequired,
+  title: string,
   code: string.isRequired,
 });
 
