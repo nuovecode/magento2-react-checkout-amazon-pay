@@ -14,6 +14,7 @@ import {
   INVALID_BILLING_ADDR_ERR,
   INVALID_SHIPPING_ADDR_ERR,
   parseAddress,
+  getCheckoutSessionId,
 } from '../utils';
 import { _cleanObjByKeys, _isObjEmpty, _makePromise } from '../../../../utils';
 import {
@@ -23,12 +24,8 @@ import {
   BILLING_ADDR_FORM,
 } from '../../../../config';
 import LocalStorage from '../../../../utils/localStorage';
-import useShippingMethodCartContext from '../../../../components/shippingMethod/hooks/useShippingMethodCartContext';
-import { getCheckoutSessionId } from '../../../../components/paymentMethod/utility';
-import useSuggestedAddress from '../../../../components/shippingAddress/hooks/useSuggestedAddress';
-import { setDefaultShippingMethod } from '../../../../components/shippingAddress/utility';
-import useSuggestedBillingAddresses from '../../../../components/billingAddress/hooks/useSuggestedBillingAddresses';
-import getAndSaveLoqateAddressSuggestions from '../../../../api/loqate/getAndSaveLoqateAddressSuggestions';
+// import useShippingMethodCartContext from '../../../../components/shippingMethod/hooks/useShippingMethodCartContext';
+// import { setDefaultShippingMethod } from '../../../../components/shippingAddress/utility';
 
 const EMAIL_FIELD = `${LOGIN_FORM}.email`;
 
@@ -41,15 +38,10 @@ export default function useAmazonPay(paymentMethodCode) {
     addCartShippingAddress,
     setCartBillingAddress,
   } = useAmazonPayCartContext();
-  const {
-    setErrorMessage,
-    setPageLoader,
-    checkoutAgreements,
-  } = useAmazonPayAppContext();
+  const { setErrorMessage, setPageLoader, checkoutAgreements } =
+    useAmazonPayAppContext();
   const performPlaceOrder = usePerformPlaceOrder();
-  const { setShippingMethod } = useShippingMethodCartContext();
-  const { clearSuggestedAddress, saveSuggestedAddress } = useSuggestedAddress();
-  const { clearSuggestedBillingAddresses, saveSuggestedBillingAddresses } = useSuggestedBillingAddresses();
+  // const { setShippingMethod } = useShippingMethodCartContext();
   const { setFieldValue, setFieldTouched } = useFormikContext();
 
   const query = window.location.search;
@@ -188,19 +180,6 @@ export default function useAmazonPay(paymentMethodCode) {
       LocalStorage.saveCustomerAddressInfo('', isSameAsShipping);
       setFieldValue(SHIPPING_ADDR_FORM, shippingAddressToSet);
 
-      // attempt to get shipping address suggestions
-      clearSuggestedAddress();
-      if (shippingAddressToSet.country === 'DE') {
-        try {
-          await getAndSaveLoqateAddressSuggestions(
-              shippingAddressToSet,
-              saveSuggestedAddress
-          );
-        } catch (error) {
-          console.error(error);
-        }
-      }
-
       /** Parse and validate the billing address */
       const billingAddressParsed = parseAddress(billingAddress, cartId);
       const billingAddressIsValid = true;
@@ -231,23 +210,10 @@ export default function useAmazonPay(paymentMethodCode) {
 
       setFieldValue(BILLING_ADDR_FORM, billingAddressToSet);
 
-      // attempt to get billing address suggestions
-      clearSuggestedBillingAddresses();
-      if (billingAddressToSet.country === 'DE') {
-        try {
-          await getAndSaveLoqateAddressSuggestions(
-              billingAddressToSet,
-              saveSuggestedBillingAddresses
-          );
-        } catch (error) {
-          console.error(error);
-        }
-      }
-
       /** Select the first shipping method by default */
       if (shippingAddressIsValid) {
-        const methodList = _get(shippingAddressResponse, 'shipping_methods');
-        await setDefaultShippingMethod(methodList, setShippingMethod);
+        // const methodList = _get(shippingAddressResponse, 'shipping_methods');
+        // await setDefaultShippingMethod(methodList, setShippingMethod);
 
         /** Select the payment method */
         setFieldValue(`${PAYMENT_METHOD_FORM}.code`, 'amazon_payment_v2');
@@ -269,7 +235,7 @@ export default function useAmazonPay(paymentMethodCode) {
 
       setPageLoader(false);
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       setPageLoader(false);
     }
     // eslint-disable-next-line

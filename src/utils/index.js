@@ -25,6 +25,11 @@ export const parseAddress = (amazonAddress, cartId) => {
   };
 };
 
+export const getCheckoutSessionId = (query) => {
+  const params = new URLSearchParams(query);
+  return params.get('amazonCheckoutSessionId');
+};
+
 export const INVALID_SHIPPING_ADDR_ERR =
   'The shipping address you have set on Amazon is not valid for the current store, please set another address';
 

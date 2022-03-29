@@ -8,7 +8,7 @@ export default function usePerformPlaceOrder() {
   const { setErrorMessage, setPageLoader } = useAmazonPayAppContext();
 
   return useCallback(
-    async checkoutSessionId => {
+    async (checkoutSessionId) => {
       try {
         setPageLoader(true);
         const updateResponse = await restUpdateCheckoutSessionConfig(
