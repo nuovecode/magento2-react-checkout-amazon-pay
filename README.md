@@ -9,7 +9,8 @@ Amazon Pay payment method for Hyvä Checkout
 ## Prerequisites
 
 1. **[Hyvä Checkout](https://github.com/hyva-themes/magento2-hyva-checkout)** is installed and setup.
-2. Amazon Pay is configured in the Magento 2 store backend under `Stores > Configuration > Sales > Payment Methods > Other Payment Methods > Amazon Pay`.
+2. Amazon Pay for Magento 2 is installed and setup. `composer require amzn/amazon-pay-magento-2-module "~5.9"`
+3. Amazon Pay is configured in the Magento 2 store backend under `Stores > Configuration > Sales > Payment Methods > Other Payment Methods > Amazon Pay`.
 
 ## How to use it with Hyvä Checkout?
 Add below code in your `package.json`.
@@ -34,8 +35,9 @@ Finally, we need to build the app again. For this, you need to run `npm run buil
 - The official documentation of **[Hyvä Checkout](https://hyva-themes.github.io/magento2-hyva-checkout)**
 - The Magento module documentation of **[Amazon Pay](https://github.com/amzn/amazon-payments-magento-2-plugin)**
 
-
 ## Credits
+
+# [![webvisum GmbH](https://webvisum.de/media/logo/websites/1/logo.png)](https://webvisum.de)
 
 - [All Contributors][link-contributors]
 
