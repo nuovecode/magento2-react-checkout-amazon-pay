@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import _get from 'lodash.get';
 import _set from 'lodash.set';
-import { useFormikContext } from 'formik';
+import usePaymentMethodFormContext from '../../../../components/paymentMethod/hooks/usePaymentMethodFormContext';
 import usePerformPlaceOrder from './usePerformPlaceOrder';
 import restGetCheckoutSessionConfig from '../api/restGetCheckoutSessionConfig';
 import useAmazonPayCartContext from './useAmazonPayCartContext';
@@ -38,7 +38,7 @@ export default function useAmazonPay(paymentMethodCode) {
   const { appDispatch, setErrorMessage, setPageLoader, checkoutAgreements } =
     useAmazonPayAppContext();
   const performPlaceOrder = usePerformPlaceOrder();
-  const { setFieldValue, setFieldTouched } = useFormikContext();
+  const { setFieldValue, setFieldTouched } = usePaymentMethodFormContext();
 
   const query = window.location.search;
   const selectedPaymentMethodCode = _get(selectedPaymentMethod, 'code');
