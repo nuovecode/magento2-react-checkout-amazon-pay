@@ -3,12 +3,13 @@ import AppContext from '../../../../context/App/AppContext';
 
 export default function useAmazonPayAppContext() {
   const [
-    { isLoggedIn, checkoutAgreements },
+    { dispatch: appDispatch, isLoggedIn, checkoutAgreements },
     { setErrorMessage, setPageLoader },
   ] = useContext(AppContext);
 
   return {
     isLoggedIn,
+    appDispatch,
     setPageLoader,
     setErrorMessage,
     checkoutAgreements,

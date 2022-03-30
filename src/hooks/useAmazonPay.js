@@ -29,14 +29,13 @@ const EMAIL_FIELD = `${LOGIN_FORM}.email`;
 
 export default function useAmazonPay(paymentMethodCode) {
   const [processPaymentEnable, setProcessPaymentEnable] = useState(false);
-
   const {
     selectedPaymentMethod,
     cartId,
     addCartShippingAddress,
     setCartBillingAddress,
   } = useAmazonPayCartContext();
-  const { setErrorMessage, setPageLoader, checkoutAgreements } =
+  const { appDispatch, setErrorMessage, setPageLoader, checkoutAgreements } =
     useAmazonPayAppContext();
   const performPlaceOrder = usePerformPlaceOrder();
   const { setFieldValue, setFieldTouched } = useFormikContext();
@@ -67,7 +66,7 @@ export default function useAmazonPay(paymentMethodCode) {
       !getCheckoutSessionId(query ?? '')
     ) {
       setPageLoader(true);
-      const config = await restGetCheckoutSessionConfig();
+      const config = await restGetCheckoutSessionConfig(appDispatch);
       setPageLoader(false);
 
       if (!config) {
@@ -132,8 +131,14 @@ export default function useAmazonPay(paymentMethodCode) {
 
     try {
       /** Get Amazon addresses via rest */
-      const [shippingAddress] = await restGetShippingAddress(checkoutSessionId);
-      const [billingAddress] = await restGetBillingAddress(checkoutSessionId);
+      const [shippingAddress] = await restGetShippingAddress(
+        appDispatch,
+        checkoutSessionId
+      );
+      const [billingAddress] = await restGetBillingAddress(
+        appDispatch,
+        checkoutSessionId
+      );
 
       if (!shippingAddress || !billingAddress) {
         setErrorMessage(__(AMAZON_NOT_AVL));

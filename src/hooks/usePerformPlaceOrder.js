@@ -5,13 +5,15 @@ import restUpdateCheckoutSessionConfig from '../api/restUpdateCheckoutSessionCon
 import LocalStorage from '../../../../utils/localStorage';
 
 export default function usePerformPlaceOrder() {
-  const { setErrorMessage, setPageLoader } = useAmazonPayAppContext();
+  const { appDispatch, setErrorMessage, setPageLoader } =
+    useAmazonPayAppContext();
 
   return useCallback(
     async (checkoutSessionId) => {
       try {
         setPageLoader(true);
         const updateResponse = await restUpdateCheckoutSessionConfig(
+          appDispatch,
           checkoutSessionId
         );
 

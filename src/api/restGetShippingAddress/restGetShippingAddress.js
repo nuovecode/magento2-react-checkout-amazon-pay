@@ -1,9 +1,12 @@
 import RootElement from '../../../../../utils/rootElement';
-import sendRequest, { RESPONSE_JSON } from '../sendRequest';
+import sendRequest, { RESPONSE_JSON } from '../../../../../api/sendRequest';
 
-export default async function restGetShippingAddress(checkoutSessionId) {
+export default async function restGetShippingAddress(
+  appDispatch,
+  checkoutSessionId
+) {
   const paymentConfig = RootElement.getPaymentConfig();
   const url = `${paymentConfig.restUrlPrefix}amazon-checkout-session/${checkoutSessionId}/shipping-address`;
 
-  return sendRequest({}, url, RESPONSE_JSON, {}, true);
+  return sendRequest(appDispatch, {}, url, RESPONSE_JSON, {}, true);
 }
