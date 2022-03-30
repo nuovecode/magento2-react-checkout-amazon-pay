@@ -24,8 +24,6 @@ import {
   BILLING_ADDR_FORM,
 } from '../../../../config';
 import LocalStorage from '../../../../utils/localStorage';
-// import useShippingMethodCartContext from '../../../../components/shippingMethod/hooks/useShippingMethodCartContext';
-// import { setDefaultShippingMethod } from '../../../../components/shippingAddress/utility';
 
 const EMAIL_FIELD = `${LOGIN_FORM}.email`;
 
@@ -41,7 +39,6 @@ export default function useAmazonPay(paymentMethodCode) {
   const { setErrorMessage, setPageLoader, checkoutAgreements } =
     useAmazonPayAppContext();
   const performPlaceOrder = usePerformPlaceOrder();
-  // const { setShippingMethod } = useShippingMethodCartContext();
   const { setFieldValue, setFieldTouched } = useFormikContext();
 
   const query = window.location.search;
@@ -210,11 +207,7 @@ export default function useAmazonPay(paymentMethodCode) {
 
       setFieldValue(BILLING_ADDR_FORM, billingAddressToSet);
 
-      /** Select the first shipping method by default */
       if (shippingAddressIsValid) {
-        // const methodList = _get(shippingAddressResponse, 'shipping_methods');
-        // await setDefaultShippingMethod(methodList, setShippingMethod);
-
         /** Select the payment method */
         setFieldValue(`${PAYMENT_METHOD_FORM}.code`, 'amazon_payment_v2');
       }
@@ -225,14 +218,6 @@ export default function useAmazonPay(paymentMethodCode) {
           shippingAddressResponse?.email ?? billingAddressResponse?.email;
         setFieldValue(EMAIL_FIELD, cartEmail);
       }
-
-      LocalStorage.saveIsExternalShippingAddress(
-        shippingAddressIsValid ? true : 'invalid'
-      );
-      LocalStorage.saveIsExternalBillingAddress(
-        billingAddressIsValid ? true : 'invalid'
-      );
-
       setPageLoader(false);
     } catch (error) {
       console.error({ error });
