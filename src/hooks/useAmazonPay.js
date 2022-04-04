@@ -190,7 +190,7 @@ export default function useAmazonPay(paymentMethodCode) {
       const billingAddressIsValid = true;
 
       /** Update the billing address and check if there is an error message */
-      if (billingAddressIsValid) {
+      if (billingAddressIsValid && !isSameAsShipping) {
         const updateBillingAddress = _makePromise(
           setCartBillingAddress,
           parseAddress({ ...billingAddress, isSameAsShipping }, cartId),
