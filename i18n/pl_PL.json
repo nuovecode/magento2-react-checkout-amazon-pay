@@ -1,1 +1,5 @@
-{}
+{
+  "The shipping address you have set on Amazon is not valid for the current store, please set another address": "Adres wysyłki ustawiony na Amazon jest nieprawidłowy. Ustaw inny adres.",
+  "The billing address you have set on Amazon is not valid for the current store, please set another address": "Wybrany w Amazonie adres rozliczeniowy jest niedozwolony dla tego sklepu. Należy ustalić inny adres.",
+  "Amazon pay not available": "Amazon Pay niedostępny"
+}

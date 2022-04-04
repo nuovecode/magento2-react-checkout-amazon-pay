@@ -159,8 +159,11 @@ export default function useAmazonPay(paymentMethodCode) {
         shippingAddressParsed,
         isSameAsShipping
       );
-      const shippingAddressResponse = await updateShippingAddress().catch(
-        () => {
+
+      const shippingAddressResponse = async () => {
+        try {
+          await updateShippingAddress();
+        } catch (error) {
           const shippingAddressToSet = _cleanObjByKeys(shippingAddressParsed, [
             'fullName',
             'cartId',
@@ -171,7 +174,7 @@ export default function useAmazonPay(paymentMethodCode) {
           setErrorMessage(__(INVALID_SHIPPING_ADDR_ERR));
           shippingAddressIsValid = false;
         }
-      );
+      };
 
       const shippingAddressToSet = _cleanObjByKeys(shippingAddressParsed, [
         'fullName',
@@ -194,10 +197,14 @@ export default function useAmazonPay(paymentMethodCode) {
           isSameAsShipping
         );
 
-        billingAddressResponse = await updateBillingAddress().catch(() => {
-          setErrorMessage(__(INVALID_BILLING_ADDR_ERR));
-          shippingAddressIsValid = false;
-        });
+        billingAddressResponse = async () => {
+          try {
+            await updateBillingAddress();
+          } catch (error) {
+            setErrorMessage(__(INVALID_BILLING_ADDR_ERR));
+            shippingAddressIsValid = false;
+          }
+        };
       }
 
       const billingAddressToSet = _cleanObjByKeys(billingAddressParsed, [
