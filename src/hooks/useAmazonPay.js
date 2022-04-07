@@ -1,45 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
 import _get from 'lodash.get';
-import _set from 'lodash.set';
 import useAmazonPayFormikContext from './useAmazonPayFormikContext';
 import usePerformPlaceOrder from './usePerformPlaceOrder';
+import useSaveAddresses from './useSaveAddresses';
 import restGetCheckoutSessionConfig from '../api/restGetCheckoutSessionConfig';
 import useAmazonPayCartContext from './useAmazonPayCartContext';
 import { __ } from '../../../../i18n';
 import useAmazonPayAppContext from './useAmazonPayAppContext';
 import restGetShippingAddress from '../api/restGetShippingAddress';
 import restGetBillingAddress from '../api/restGetBillingAddress';
-import {
-  AMAZON_NOT_AVL,
-  INVALID_BILLING_ADDR_ERR,
-  INVALID_SHIPPING_ADDR_ERR,
-  parseAddress,
-  getCheckoutSessionId,
-} from '../utils';
-import { _cleanObjByKeys, _isObjEmpty, _makePromise } from '../../../../utils';
-import {
-  SHIPPING_ADDR_FORM,
-  LOGIN_FORM,
-  PAYMENT_METHOD_FORM,
-  BILLING_ADDR_FORM,
-} from '../../../../config';
-import LocalStorage from '../../../../utils/localStorage';
-
-const EMAIL_FIELD = `${LOGIN_FORM}.email`;
+import { AMAZON_NOT_AVL, getCheckoutSessionId } from '../utils';
+import { PAYMENT_METHOD_FORM } from '../../../../config';
 
 export default function useAmazonPay(paymentMethodCode) {
   const [processPaymentEnable, setProcessPaymentEnable] = useState(false);
-  const {
-    selectedPaymentMethod,
-    cartId,
-    addCartShippingAddress,
-    setCartBillingAddress,
-  } = useAmazonPayCartContext();
-  const { appDispatch, setErrorMessage, setPageLoader, checkoutAgreements } =
+  const { selectedPaymentMethod } = useAmazonPayCartContext();
+  const { appDispatch, setErrorMessage, setPageLoader } =
     useAmazonPayAppContext();
   const performPlaceOrder = usePerformPlaceOrder();
-  const { setFieldValue, setFieldTouched } = useAmazonPayFormikContext();
-
+  const saveAddresses = useSaveAddresses();
+  const { setFieldValue } = useAmazonPayFormikContext();
   const searchQuery = window.location.search;
   const selectedPaymentMethodCode = _get(selectedPaymentMethod, 'code');
 
@@ -120,116 +100,34 @@ export default function useAmazonPay(paymentMethodCode) {
    */
   const setAddresses = useCallback(async () => {
     const checkoutSessionId = getCheckoutSessionId(searchQuery);
-
-    if (!checkoutSessionId) {
-      return;
-    }
-
-    /** Checkout agreement validation because when the checkout agreements initial values are coming
-     all the form is reset because the enableReinitialize prop in the formik (CheckoutFormProvider.jsx) */
-    if (!checkoutAgreements || _isObjEmpty(checkoutAgreements)) {
-      return;
-    }
-
     setPageLoader(true);
 
     try {
       /** Get Amazon addresses via rest */
-      const [shippingAddress, billingAddress] = await Promise.all([
-        restGetShippingAddress(appDispatch, checkoutSessionId),
-        restGetBillingAddress(appDispatch, checkoutSessionId),
-      ]);
+      const [sessionShippingAddress, sessionBillingAddress] = await Promise.all(
+        [
+          restGetShippingAddress(appDispatch, checkoutSessionId),
+          restGetBillingAddress(appDispatch, checkoutSessionId),
+        ]
+      );
+      const [shippingAddress] = sessionShippingAddress;
+      const [billingAddress] = sessionBillingAddress;
 
       if (!shippingAddress || !billingAddress) {
         setErrorMessage(__(AMAZON_NOT_AVL));
         setPageLoader(false);
         return;
       }
-
-      const isSameAsShipping = billingAddress === shippingAddress;
-
-      /** Parse and validate the shipping address */
-      const shippingAddressParsed = parseAddress(shippingAddress, cartId);
-      let shippingAddressIsValid = true;
-
-      /** Update the amazon addresses as the customer addresses and run the mutation to save them in the backend */
-      let billingAddressResponse;
-      const updateShippingAddress = _makePromise(
-        addCartShippingAddress,
-        shippingAddressParsed,
-        isSameAsShipping
+      const shippingAddressIsValid = await saveAddresses(
+        billingAddress,
+        shippingAddress
       );
-
-      const shippingAddressResponse = async () => {
-        try {
-          await updateShippingAddress();
-        } catch (error) {
-          const shippingAddressToSet = _cleanObjByKeys(shippingAddressParsed, [
-            'fullName',
-            'cartId',
-          ]);
-          _set(shippingAddressToSet, 'isSameAsShipping', isSameAsShipping);
-          LocalStorage.saveCustomerAddressInfo('', isSameAsShipping);
-          setFieldValue(SHIPPING_ADDR_FORM, shippingAddressToSet);
-          setErrorMessage(__(INVALID_SHIPPING_ADDR_ERR));
-          shippingAddressIsValid = false;
-        }
-      };
-
-      const shippingAddressToSet = _cleanObjByKeys(shippingAddressParsed, [
-        'fullName',
-        'cartId',
-      ]);
-
-      _set(shippingAddressToSet, 'isSameAsShipping', isSameAsShipping);
-      LocalStorage.saveCustomerAddressInfo('', isSameAsShipping);
-      setFieldValue(SHIPPING_ADDR_FORM, shippingAddressToSet);
-
-      /** Parse and validate the billing address */
-      const billingAddressParsed = parseAddress(billingAddress, cartId);
-      const billingAddressIsValid = true;
-
-      /** Update the billing address and check if there is an error message */
-      if (billingAddressIsValid && !isSameAsShipping) {
-        const updateBillingAddress = _makePromise(
-          setCartBillingAddress,
-          parseAddress({ ...billingAddress, isSameAsShipping }, cartId),
-          isSameAsShipping
-        );
-
-        billingAddressResponse = async () => {
-          try {
-            await updateBillingAddress();
-          } catch (error) {
-            setErrorMessage(__(INVALID_BILLING_ADDR_ERR));
-            shippingAddressIsValid = false;
-          }
-        };
-      }
-
-      const billingAddressToSet = _cleanObjByKeys(billingAddressParsed, [
-        'fullName',
-        'cartId',
-      ]);
-
-      _set(billingAddressToSet, 'isSameAsShipping', isSameAsShipping);
-
-      LocalStorage.saveCustomerAddressInfo('', isSameAsShipping, false);
-      LocalStorage.saveBillingSameAsShipping(isSameAsShipping);
-
-      setFieldValue(BILLING_ADDR_FORM, billingAddressToSet);
 
       if (shippingAddressIsValid) {
         /** Select the payment method */
         setFieldValue(`${PAYMENT_METHOD_FORM}.code`, 'amazon_payment_v2');
       }
 
-      /** Set the email on cart */
-      if (shippingAddressIsValid || billingAddressIsValid) {
-        const cartEmail =
-          shippingAddressResponse?.email ?? billingAddressResponse?.email;
-        setFieldValue(EMAIL_FIELD, cartEmail);
-      }
       setPageLoader(false);
     } catch (error) {
       console.error({ error });
@@ -238,15 +136,9 @@ export default function useAmazonPay(paymentMethodCode) {
     // eslint-disable-next-line
   }, [
     searchQuery,
-    addCartShippingAddress,
-    cartId,
     setErrorMessage,
     setPageLoader,
-    setCartBillingAddress,
     setFieldValue,
-    setFieldTouched,
-    paymentMethodCode,
-    checkoutAgreements,
   ]);
 
   /**
