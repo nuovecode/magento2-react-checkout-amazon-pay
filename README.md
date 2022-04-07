@@ -30,8 +30,8 @@ Finally, we need to build the app again. For this, you need to run `npm run buil
 
 ## Documentation
 
-- If you need information on the build process of the React Checkout, then you can **[read more about it here](https://hyva-themes.github.io/magento2-hyva-checkout/build/)**.
-- If you want to know more about how Hyvä Checkout helps you to integrate any payment methods, then **[read more about it here](https://hyva-themes.github.io/magento2-hyva-checkout/payment-integration/)**.
+- If you need information on the build process of the React Checkout, then you can **[read more about it here](https://hyva-themes.github.io/magento2-react-checkout/build/)**.
+- If you want to know more about how Hyvä Checkout helps you to integrate any payment methods, then **[read more about it here](https://hyva-themes.github.io/magento2-react-checkout/payment-integration/)**.
 - The official documentation of **[Hyvä React Checkout](https://hyva-themes.github.io/magento2-react-checkout)**
 - The Magento module documentation of **[Amazon Pay](https://github.com/amzn/amazon-payments-magento-2-plugin)**
 
