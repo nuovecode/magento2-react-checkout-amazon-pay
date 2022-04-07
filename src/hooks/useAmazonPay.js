@@ -1,77 +1,70 @@
 import { useCallback, useEffect, useState } from 'react';
 import _get from 'lodash.get';
+import useAmazonPayFormikContext from './useAmazonPayFormikContext';
 import usePerformPlaceOrder from './usePerformPlaceOrder';
+import useSaveAddresses from './useSaveAddresses';
 import restGetCheckoutSessionConfig from '../api/restGetCheckoutSessionConfig';
 import useAmazonPayCartContext from './useAmazonPayCartContext';
-
-/*
- Utility to get the token and the payer id from the URL
- */
-const getCheckoutSessionId = query => {
-  const params = new URLSearchParams(query);
-  return params.get('amazonCheckoutSessionId');
-};
+import { __ } from '../../../../i18n';
+import useAmazonPayAppContext from './useAmazonPayAppContext';
+import restGetShippingAddress from '../api/restGetShippingAddress';
+import restGetBillingAddress from '../api/restGetBillingAddress';
+import { AMAZON_NOT_AVL, getCheckoutSessionId } from '../utils';
+import { PAYMENT_METHOD_FORM } from '../../../../config';
 
 export default function useAmazonPay(paymentMethodCode) {
-  const performPlaceOrder = usePerformPlaceOrder(paymentMethodCode);
   const [processPaymentEnable, setProcessPaymentEnable] = useState(false);
-  const {
-    selectedShippingMethod,
-    selectedPaymentMethod,
-    hasCartBillingAddress,
-  } = useAmazonPayCartContext();
-
-  const query = window.location.search;
-
-  const selectedShippingMethodCode = _get(selectedShippingMethod, 'methodCode');
+  const { selectedPaymentMethod } = useAmazonPayCartContext();
+  const { appDispatch, setErrorMessage, setPageLoader } =
+    useAmazonPayAppContext();
+  const performPlaceOrder = usePerformPlaceOrder();
+  const saveAddresses = useSaveAddresses();
+  const { setFieldValue } = useAmazonPayFormikContext();
+  const searchQuery = window.location.search;
   const selectedPaymentMethodCode = _get(selectedPaymentMethod, 'code');
 
-  /*
-   Check if is possible to proceed on placing the order.
+  /**
+   Set amazon script.
    */
   useEffect(() => {
-    if (
-      query &&
-      selectedShippingMethodCode &&
-      ['', paymentMethodCode].includes(selectedPaymentMethodCode)
-    )
-      setProcessPaymentEnable(true);
-  }, [
-    paymentMethodCode,
-    query,
-    setProcessPaymentEnable,
-    selectedShippingMethodCode,
-    selectedPaymentMethodCode,
-  ]);
+    if (!window.amazon) {
+      const scriptTag = document.createElement('script');
 
-  const placeAmazonPayOrder = useCallback(async () => {
-    const checkoutSessionId = getCheckoutSessionId(query);
+      scriptTag.src = 'https://static-eu.payments-amazon.com/checkout.js';
+      scriptTag.async = true;
 
-    if (
-      !checkoutSessionId ||
-      !selectedShippingMethod ||
-      !hasCartBillingAddress
-    ) {
-      return;
+      document.body.appendChild(scriptTag);
     }
+  }, []);
 
-    await performPlaceOrder(checkoutSessionId);
-  }, [query, selectedShippingMethod, hasCartBillingAddress, performPlaceOrder]);
-
+  /**
+   Get amazon session config from the BE when the payment is selected
+   */
   const getCheckoutSessionConfig = useCallback(async () => {
-    if (paymentMethodCode === 'amazon_payment_v2') {
-      const config = await restGetCheckoutSessionConfig();
+    if (
+      paymentMethodCode === 'amazon_payment_v2' &&
+      !getCheckoutSessionId(searchQuery ?? '')
+    ) {
+      setPageLoader(true);
+      const config = await restGetCheckoutSessionConfig(appDispatch);
+      setPageLoader(false);
+
+      if (!config) {
+        throw new Error(__(AMAZON_NOT_AVL));
+      }
+
+      if (!window.amazon) {
+        throw new Error(__(AMAZON_NOT_AVL));
+      }
+
       window.amazon.Pay.renderButton('#AmazonPayButton', {
-        // set checkout environment
         merchantId: config.merchantId,
         publicKeyId: config.publicKeyId,
         ledgerCurrency: config.ledgerCurrency,
-        // customize the buyer experience
         checkoutLanguage: config.checkoutLanguage,
         productType: 'PayAndShip',
         placement: 'Checkout',
         buttonColor: config.buttonColor,
-        // configure Create Checkout Session request
         createCheckoutSessionConfig: {
           payloadJSON: config.checkoutReviewPayload,
           signature: config.checkoutReviewSignature,
@@ -81,11 +74,90 @@ export default function useAmazonPay(paymentMethodCode) {
     }
 
     return false;
-  }, [paymentMethodCode]);
+  }, [paymentMethodCode, setPageLoader, searchQuery]);
+
+  /**
+   Check if is possible to proceed on placing the order.
+   */
+  useEffect(() => {
+    if (
+      searchQuery &&
+      getCheckoutSessionId(searchQuery) &&
+      !processPaymentEnable
+    ) {
+      setProcessPaymentEnable(true);
+    }
+  }, [
+    paymentMethodCode,
+    searchQuery,
+    setProcessPaymentEnable,
+    selectedPaymentMethodCode,
+    processPaymentEnable,
+  ]);
+
+  /**
+   Get addresses from amazon pay and set in the checkout
+   */
+  const setAddresses = useCallback(async () => {
+    const checkoutSessionId = getCheckoutSessionId(searchQuery);
+    setPageLoader(true);
+
+    try {
+      /** Get Amazon addresses via rest */
+      const [sessionShippingAddress, sessionBillingAddress] = await Promise.all(
+        [
+          restGetShippingAddress(appDispatch, checkoutSessionId),
+          restGetBillingAddress(appDispatch, checkoutSessionId),
+        ]
+      );
+      const [shippingAddress] = sessionShippingAddress;
+      const [billingAddress] = sessionBillingAddress;
+
+      if (!shippingAddress || !billingAddress) {
+        setErrorMessage(__(AMAZON_NOT_AVL));
+        setPageLoader(false);
+        return;
+      }
+      const shippingAddressIsValid = await saveAddresses(
+        billingAddress,
+        shippingAddress
+      );
+
+      if (shippingAddressIsValid) {
+        /** Select the payment method */
+        setFieldValue(`${PAYMENT_METHOD_FORM}.code`, 'amazon_payment_v2');
+      }
+
+      setPageLoader(false);
+    } catch (error) {
+      console.error({ error });
+      setPageLoader(false);
+    }
+    // eslint-disable-next-line
+  }, [
+    searchQuery,
+    setErrorMessage,
+    setPageLoader,
+    setFieldValue,
+  ]);
+
+  /**
+   Final step: placing the order
+   */
+  const placeAmazonPayOrder = useCallback(async () => {
+    const checkoutSessionId = getCheckoutSessionId(searchQuery);
+
+    if (!checkoutSessionId) {
+      return;
+    }
+
+    await performPlaceOrder(checkoutSessionId);
+  }, [searchQuery, performPlaceOrder]);
 
   return {
     placeAmazonPayOrder,
     getCheckoutSessionConfig,
     processPaymentEnable,
+    setAddresses,
   };
 }

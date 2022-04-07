@@ -1,8 +1,11 @@
 import { func, shape, string } from 'prop-types';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import _get from 'lodash.get';
 import RadioInput from '../../../../components/common/Form/RadioInput';
 import useAmazonPay from '../hooks/useAmazonPay';
+import useAmazonPayCheckoutFormContext from '../hooks/useAmazonPayCheckoutFormContext';
+import useAmazonPayCartContext from '../hooks/useAmazonPayCartContext';
+import useAmazonPayAppContext from '../hooks/useAmazonPayAppContext';
 
 function AmazonPay({ method, selected, actions }) {
   const methodCode = _get(method, 'code');
@@ -10,18 +13,46 @@ function AmazonPay({ method, selected, actions }) {
     getCheckoutSessionConfig,
     placeAmazonPayOrder,
     processPaymentEnable,
+    setAddresses,
   } = useAmazonPay(methodCode);
+  const { setPaymentMethod, selectedPaymentMethod } = useAmazonPayCartContext();
+  const { setPageLoader } = useAmazonPayAppContext();
   const isSelected = methodCode === selected.code;
+  const { registerPaymentAction } = useAmazonPayCheckoutFormContext();
+
+  const initalizeAmazonPaymentOnSelection = useCallback(async () => {
+    setPageLoader(true);
+    await getCheckoutSessionConfig();
+    if (selectedPaymentMethod.code !== methodCode) {
+      await setPaymentMethod(methodCode);
+    }
+    setPageLoader(false);
+  }, [
+    setPageLoader,
+    getCheckoutSessionConfig,
+    selectedPaymentMethod,
+    methodCode,
+    setPaymentMethod,
+  ]);
 
   useEffect(() => {
-    if (isSelected) getCheckoutSessionConfig();
-  }, [isSelected, getCheckoutSessionConfig]);
+    if (isSelected) {
+      initalizeAmazonPaymentOnSelection();
+    }
+  }, [isSelected, initalizeAmazonPaymentOnSelection]);
 
   useEffect(() => {
     if (processPaymentEnable) {
-      placeAmazonPayOrder();
+      setAddresses();
+      registerPaymentAction(methodCode, placeAmazonPayOrder);
     }
-  }, [placeAmazonPayOrder, processPaymentEnable]);
+  }, [
+    setAddresses,
+    processPaymentEnable,
+    methodCode,
+    registerPaymentAction,
+    placeAmazonPayOrder,
+  ]);
 
   if (isSelected) {
     return (
@@ -33,7 +64,7 @@ function AmazonPay({ method, selected, actions }) {
           onChange={actions.change}
           checked={isSelected}
         />
-        <div id="AmazonPayButton"></div>
+        <div id="AmazonPayButton" />
       </>
     );
   }
@@ -54,7 +85,7 @@ function AmazonPay({ method, selected, actions }) {
 }
 
 const methodShape = shape({
-  title: string.isRequired,
+  title: string,
   code: string.isRequired,
 });
 
@@ -62,6 +93,10 @@ AmazonPay.propTypes = {
   method: methodShape.isRequired,
   selected: methodShape.isRequired,
   actions: shape({ change: func }),
+};
+
+AmazonPay.defaultProps = {
+  actions: {},
 };
 
 export default AmazonPay;

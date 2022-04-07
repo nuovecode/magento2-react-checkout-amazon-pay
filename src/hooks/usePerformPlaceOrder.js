@@ -1,23 +1,24 @@
 import { useCallback } from 'react';
 import { __ } from '../../../../i18n';
 import useAmazonPayAppContext from './useAmazonPayAppContext';
-import useAmazonPayCartContext from './useAmazonPayCartContext';
 import restUpdateCheckoutSessionConfig from '../api/restUpdateCheckoutSessionConfig';
+import LocalStorage from '../../../../utils/localStorage';
 
-export default function usePerformPlaceOrder(paymentMethodCode) {
-  const { setErrorMessage, setPageLoader } = useAmazonPayAppContext();
-  const { setPaymentMethod } = useAmazonPayCartContext();
+export default function usePerformPlaceOrder() {
+  const { appDispatch, setErrorMessage, setPageLoader } =
+    useAmazonPayAppContext();
 
   return useCallback(
-    async checkoutSessionId => {
+    async (checkoutSessionId) => {
       try {
         setPageLoader(true);
-        await setPaymentMethod({ code: paymentMethodCode });
         const updateResponse = await restUpdateCheckoutSessionConfig(
+          appDispatch,
           checkoutSessionId
         );
 
         if (updateResponse && updateResponse.length > 0) {
+          LocalStorage.clearCheckoutStorage();
           window.location.href = updateResponse;
         }
 
@@ -32,6 +33,6 @@ export default function usePerformPlaceOrder(paymentMethodCode) {
         setPageLoader(false);
       }
     },
-    [paymentMethodCode, setPageLoader, setErrorMessage, setPaymentMethod]
+    [setPageLoader, setErrorMessage]
   );
 }

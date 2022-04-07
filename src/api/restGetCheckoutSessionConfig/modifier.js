@@ -1,17 +1,23 @@
+import { _isObjEmpty } from '../../../../../utils';
+
 export default function restGetCheckoutSessionConfig(result) {
-  return {
-    merchantId: result[0],
-    ledgerCurrency: result[1],
-    buttonColor: result[2],
-    checkoutLanguage: result[3],
-    productType: result[4],
-    sandbox: result[5],
-    loginPayload: result[6],
-    loginSignature: result[7],
-    checkoutReviewPayload: result[8],
-    checkoutReviewSignature: result[9],
-    checkoutPayload: result[10],
-    checkoutSignature: result[11],
-    publicKeyId: result[12],
-  };
+  if (!_isObjEmpty(result)) {
+    const sessionConfig = result[0] || {};
+    return {
+      merchantId: sessionConfig.merchant_id,
+      ledgerCurrency: sessionConfig.currency,
+      buttonColor: sessionConfig.button_color,
+      checkoutLanguage: sessionConfig.language,
+      productType: false,
+      sandbox: sessionConfig.sandbox,
+      loginPayload: sessionConfig.login_payload,
+      loginSignature: sessionConfig.login_signature,
+      checkoutReviewPayload: sessionConfig.checkout_payload,
+      checkoutReviewSignature: sessionConfig.checkout_signature,
+      checkoutPayload: sessionConfig.paynow_payload,
+      checkoutSignature: sessionConfig.paynow_signature,
+      publicKeyId: sessionConfig.public_key_id,
+    };
+  }
+  return {};
 }
