@@ -37,6 +37,8 @@ Finally, we need to build the app again. For this, you need to run `npm run buil
 
 ## Credits
 
+Special thanks to Webvisum for building the initial release of this Paypal integration for the Hyvä React Checkout!
+
 # [![webvisum GmbH](https://webvisum.de/media/logo/websites/1/logo.png)](https://webvisum.de)
 
 - [All Contributors][link-contributors]
