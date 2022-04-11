@@ -26,7 +26,7 @@ File: `src/reactapp/package.json`
 ```
 With this code in `package.json` and running `npm install`, then you are all set. This repo will be copied into the React Checkout and configured correctly.
 
-Finally, we need to build the app again. For this, you need to run `npm run build` from the root directory of React Checkout react app (`src/reactapp`). After this, if you navigate to the checkout page from your site, then you will see the paypal express payment option you have configured in the above step.
+Finally, we need to build the app again. For this, you need to run `npm run build` from the root directory of React Checkout react app (`src/reactapp`). After this, if you navigate to the checkout page from your site, then you will see the Amazon Pay payment option you have configured in the above step.
 
 ## Documentation
 
@@ -37,7 +37,7 @@ Finally, we need to build the app again. For this, you need to run `npm run buil
 
 ## Credits
 
-Special thanks to Webvisum for building the initial release of this Paypal integration for the Hyvä React Checkout!
+Special thanks to Webvisum for building the initial release of this Amazon Pay integration for the Hyvä React Checkout!
 
 # [![webvisum GmbH](https://webvisum.de/media/logo/websites/1/logo.png)](https://webvisum.de)
 
