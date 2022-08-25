@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import _get from 'lodash.get';
-import useAmazonPayFormikContext from './useAmazonPayFormikContext';
-import usePerformPlaceOrder from './usePerformPlaceOrder';
-import useSaveAddresses from './useSaveAddresses';
-import restGetCheckoutSessionConfig from '../api/restGetCheckoutSessionConfig';
-import useAmazonPayCartContext from './useAmazonPayCartContext';
+
 import { __ } from '../../../../i18n';
-import useAmazonPayAppContext from './useAmazonPayAppContext';
-import restGetShippingAddress from '../api/restGetShippingAddress';
-import restGetBillingAddress from '../api/restGetBillingAddress';
-import { AMAZON_NOT_AVL, getCheckoutSessionId } from '../utils';
+import useSaveAddresses from './useSaveAddresses';
 import { PAYMENT_METHOD_FORM } from '../../../../config';
+import usePerformPlaceOrder from './usePerformPlaceOrder';
+import useAmazonPayAppContext from './useAmazonPayAppContext';
+import useAmazonPayCartContext from './useAmazonPayCartContext';
+import { AMAZON_NOT_AVL, getCheckoutSessionId } from '../utils';
+import restGetBillingAddress from '../api/restGetBillingAddress';
+import restGetShippingAddress from '../api/restGetShippingAddress';
+import useAmazonPayFormikContext from './useAmazonPayFormikContext';
+import restGetCheckoutSessionConfig from '../api/restGetCheckoutSessionConfig';
 
 export default function useAmazonPay(paymentMethodCode) {
   const [processPaymentEnable, setProcessPaymentEnable] = useState(false);
@@ -74,7 +75,7 @@ export default function useAmazonPay(paymentMethodCode) {
     }
 
     return false;
-  }, [paymentMethodCode, setPageLoader, searchQuery]);
+  }, [paymentMethodCode, setPageLoader, searchQuery, appDispatch]);
 
   /**
    Check if is possible to proceed on placing the order.
