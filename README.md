@@ -20,13 +20,17 @@ File: `src/reactapp/package.json`
 ```
 "config": {
     "paymentMethodsRepo": {
-      "amazon_payment_v2": "git@github.com:hyva-themes/magento2-react-checkout-amazon-pay.git"
+      "amazonPay": "git@github.com:hyva-themes/magento2-react-checkout-amazon-pay.git"
     }
 },
 ```
 With this code in `package.json` and running `npm install`, then you are all set. This repo will be copied into the React Checkout and configured correctly.
 
 Finally, we need to build the app again. For this, you need to run `npm run build` from the root directory of React Checkout react app (`src/reactapp`). After this, if you navigate to the checkout page from your site, then you will see the Amazon Pay payment option you have configured in the above step.
+
+**__Note 1:__** If you are using hyvä react checkout version >= 1.1.0, then you should use `"amazonPay": "git@github.com:hyva-themes/magento2-react-checkout-amazon-pay.git -b react-checkout-1.1.x"`
+
+**__Note 2:__** If you are using hyvä react checkout version 2.x, then you should use `"amazonPay": "git@github.com:hyva-themes/magento2-react-checkout-amazon-pay.git -b react-checkout-2.x"`
 
 ## Translations
 
@@ -36,6 +40,7 @@ Along with that, add below code in the layout xml file given below:
 
 File: `src/view/frontend/layout/hyvareactcheckout_reactcheckout_index.`xml`
 
+```
 <?xml version="1.0"?>
 <page>
     ...
@@ -58,6 +63,7 @@ File: `src/view/frontend/layout/hyvareactcheckout_reactcheckout_index.`xml`
         ....
     </body>
 </page>
+```
 
 ## Documentation
 
