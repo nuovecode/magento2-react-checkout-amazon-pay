@@ -1,5 +1,6 @@
 import { useContext } from 'react';
-import PaymentMethodFormContext from '../../../../components/paymentMethod/context/PaymentMethodFormContext';
+
+import { PaymentMethodFormContext } from '../../../../context/Form';
 
 export default function useAmazonPayFormikContext() {
   return useContext(PaymentMethodFormContext);

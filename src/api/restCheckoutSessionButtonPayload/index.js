@@ -1,0 +1,3 @@
+import restGetCheckoutSessionButtonPayload from './restCheckoutSessionButtonPayload';
+
+export default restGetCheckoutSessionButtonPayload;
