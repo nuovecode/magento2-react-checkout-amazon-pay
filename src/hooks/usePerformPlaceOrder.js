@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
+
 import { __ } from '../../../../i18n';
+import LocalStorage from '../../../../utils/localStorage';
 import useAmazonPayAppContext from './useAmazonPayAppContext';
 import restUpdateCheckoutSessionConfig from '../api/restUpdateCheckoutSessionConfig';
-import LocalStorage from '../../../../utils/localStorage';
 
 export default function usePerformPlaceOrder() {
   const { appDispatch, setErrorMessage, setPageLoader } =
@@ -33,6 +34,6 @@ export default function usePerformPlaceOrder() {
         setPageLoader(false);
       }
     },
-    [setPageLoader, setErrorMessage]
+    [setPageLoader, setErrorMessage, appDispatch]
   );
 }

@@ -1,3 +1,6 @@
+import LocalStorage from '../../../../utils/localStorage';
+import RootElement from '../../../../utils/rootElement';
+
 export const parseAddress = (amazonAddress, cartId) => {
   const street =
     amazonAddress.street.length > 1
@@ -32,3 +35,12 @@ export const INVALID_BILLING_ADDR_ERR =
   'The billing address you have set on Amazon is not valid for the current store, please set another address';
 
 export const AMAZON_NOT_AVL = 'Amazon pay not available';
+
+export const amazonPayLogoUrl = `${RootElement.getFilePath()}/Amazon_Pay/images/logo/Black-L.png`;
+
+const mageCacheStorage = LocalStorage.getMagentoLocalStorage();
+
+export const amazonPayLocalStorage = {
+  amazonPayOnly: mageCacheStorage.amzn_pay_only,
+  summaryCount: Number(mageCacheStorage.summary_count),
+};
