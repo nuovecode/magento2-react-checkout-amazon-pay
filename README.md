@@ -28,9 +28,9 @@ With this code in `package.json` and running `npm install`, then you are all set
 
 Finally, we need to build the app again. For this, you need to run `npm run build` from the root directory of React Checkout react app (`src/reactapp`). After this, if you navigate to the checkout page from your site, then you will see the Amazon Pay payment option you have configured in the above step.
 
-**__Note 1:__** If you are using hyvä react checkout version >= 1.1.0, then you should use `"amazonPay": "git@github.com:hyva-themes/magento2-react-checkout-amazon-pay.git -b react-checkout-1.1.x"`
+## Pass Amazon Pay configuration to Hyvä React Checkout
 
-**__Note 2:__** If you are using hyvä react checkout version 2.x, then you should use `"amazonPay": "git@github.com:hyva-themes/magento2-react-checkout-amazon-pay.git -b react-checkout-2.x"`
+It is important to pass the amazon pay related checkout configurations to the `CheckoutConfigProvider` ViewModel. You can use the module https://github.com/rajeev-k-tomy/hyva-react-checkout-amazon-pay for this purpose or try to implement it by your own way.
 
 ## Translations
 
@@ -52,7 +52,7 @@ File: `src/view/frontend/layout/hyvareactcheckout_reactcheckout_index.`xml`
                     <arguments>
                         <argument name="checkout_translations" xsi:type="array">
                             <item name="hyva_reactcheckout_amazon_pay" xsi:type="string">
-                                <![CDATA["The shipping address you have set on Amazon is not valid for the current store, please set another address","The billing address you have set on Amazon is not valid for the current store, please set another address.",Amazon pay not available]]>
+                                <![CDATA["The shipping address you have set on Amazon is not valid for the current store, please set another address","The billing address you have set on Amazon is not valid for the current store, please set another address.",Amazon pay not available,Amazon Pay]]>
                             </item>
                         </argument>
                     </arguments>
@@ -64,6 +64,8 @@ File: `src/view/frontend/layout/hyvareactcheckout_reactcheckout_index.`xml`
     </body>
 </page>
 ```
+
+
 
 ## Documentation
 
