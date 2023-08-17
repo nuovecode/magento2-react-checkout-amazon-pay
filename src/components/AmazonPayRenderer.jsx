@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect } from 'react';
 
+import { PAYMENT_METHOD_FORM } from '@hyva/react-checkout/config';
+import { paymentMethodShape } from '@hyva/react-checkout/utils/payment';
+import RadioInput from '@hyva/react-checkout/components/common/Form/RadioInput';
+import { __ } from '@hyva/react-checkout/i18n';
 import { amazonPayLogoUrl } from '../utils';
 import useAmazonPay from '../hooks/useAmazonPay';
-import { PAYMENT_METHOD_FORM } from '../../../../config';
-import { paymentMethodShape } from '../../../../utils/payment';
 import useAmazonPayAppContext from '../hooks/useAmazonPayAppContext';
 import useAmazonPayCartContext from '../hooks/useAmazonPayCartContext';
 import useAmazonPayFormikContext from '../hooks/useAmazonPayFormikContext';
 import useAmazonPayCheckoutFormContext from '../hooks/useAmazonPayCheckoutFormContext';
-import RadioInput from '../../../../components/common/Form/RadioInput';
-import { __ } from '../../../../i18n';
 
 function AmazonPayRenderer({ method, selected }) {
   const methodCode = method.code;

@@ -1,4 +1,4 @@
-import { _isObjEmpty } from '../../../../../utils';
+import { _isObjEmpty } from '@hyva/react-checkout/utils';
 
 export default function restGetCheckoutSessionConfigModifier(result) {
   if (!_isObjEmpty(result)) {

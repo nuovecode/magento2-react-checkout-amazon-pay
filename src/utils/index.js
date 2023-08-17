@@ -1,5 +1,5 @@
-import LocalStorage from '../../../../utils/localStorage';
-import RootElement from '../../../../utils/rootElement';
+import LocalStorage from '@hyva/react-checkout/utils/localStorage';
+import RootElement from '@hyva/react-checkout/utils/rootElement';
 
 export const parseAddress = (amazonAddress, cartId) => {
   const street =

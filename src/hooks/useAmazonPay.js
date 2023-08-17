@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { __ } from '../../../../i18n';
+import { __ } from '@hyva/react-checkout/i18n';
 import { AMAZON_NOT_AVL } from '../utils';
 import useAmazonPayButton from './useAmazonPayButton';
 import useAmazonPayAppContext from './useAmazonPayAppContext';

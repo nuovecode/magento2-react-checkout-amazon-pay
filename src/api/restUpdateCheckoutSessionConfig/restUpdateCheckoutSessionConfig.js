@@ -1,5 +1,5 @@
-import sendRequest from '../../../../../api/sendRequest';
-import RootElement from '../../../../../utils/rootElement';
+import sendRequest from '@hyva/react-checkout/api/sendRequest';
+import RootElement from '@hyva/react-checkout/utils/rootElement';
 
 export default async function restUpdateCheckoutSessionConfig(
   appDispatch,

@@ -1,8 +1,8 @@
 import { useContext } from 'react';
 import { get as _get } from 'lodash-es';
 
-import CartContext from '../../../../context/Cart/CartContext';
-import { isCartAddressValid } from '../../../../utils/address';
+import CartContext from '@hyva/react-checkout/context/Cart/CartContext';
+import { isCartAddressValid } from '@hyva/react-checkout/utils/address';
 
 export default function useAmazonPayCartContext() {
   const [cartData, cartActions] = useContext(CartContext);

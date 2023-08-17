@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
-import { __ } from '../../../../i18n';
-import LocalStorage from '../../../../utils/localStorage';
+import { __ } from '@hyva/react-checkout/i18n';
+import LocalStorage from '@hyva/react-checkout/utils/localStorage';
 import useAmazonPayAppContext from './useAmazonPayAppContext';
 import restUpdateCheckoutSessionConfig from '../api/restUpdateCheckoutSessionConfig';
 

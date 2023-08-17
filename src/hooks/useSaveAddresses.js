@@ -5,17 +5,17 @@ import {
   LOGIN_FORM,
   BILLING_ADDR_FORM,
   SHIPPING_ADDR_FORM,
-} from '../../../../config';
+} from '@hyva/react-checkout/config';
+import { __ } from '@hyva/react-checkout/i18n';
+import LocalStorage from '@hyva/react-checkout/utils/localStorage';
+import { _cleanObjByKeys, _makePromise } from '@hyva/react-checkout/utils';
 import {
   parseAddress,
   INVALID_BILLING_ADDR_ERR,
   INVALID_SHIPPING_ADDR_ERR,
 } from '../utils';
-import { __ } from '../../../../i18n';
-import LocalStorage from '../../../../utils/localStorage';
 import useAmazonPayAppContext from './useAmazonPayAppContext';
 import useAmazonPayCartContext from './useAmazonPayCartContext';
-import { _cleanObjByKeys, _makePromise } from '../../../../utils';
 import useAmazonPayFormikContext from './useAmazonPayFormikContext';
 
 const EMAIL_FIELD = `${LOGIN_FORM}.email`;

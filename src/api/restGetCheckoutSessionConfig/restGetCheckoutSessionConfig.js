@@ -1,6 +1,8 @@
-import RootElement from '../../../../../utils/rootElement';
+import RootElement from '@hyva/react-checkout/utils/rootElement';
+import sendRequest, {
+  RESPONSE_JSON,
+} from '@hyva/react-checkout/api/sendRequest';
 import modifier from './modifier';
-import sendRequest, { RESPONSE_JSON } from '../../../../../api/sendRequest';
 
 export default async function restGetCheckoutSessionConfig(appDispatch) {
   const paymentConfig = RootElement.getPaymentConfig();
